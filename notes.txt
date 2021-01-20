@@ -1,0 +1,229 @@
+Intro to react forms
+_______________________________________________________
+we have not yet covered how we write forms in the react way 
+
+the html stuff is not different 
+the way we manage it is 
+
+build forms with react 
+understand what control components in react are 
+
+so we put a form and input and we are adding in a form to put in a username
+
+in vanilla js we would grab the document.querySelector grab the input 
+
+prevent the default refresh and then we would look at the input.value 
+
+A user could do a bunch of stuff on the field and then we wait until the user submit 
+
+there is a period between when the user is typing and when they submit
+
+form elements naturally keep some internal state 
+
+in react what we want to do is know what that data is 
+
+as we type into the input , we want to know when something changes in the form 
+
+in react instead of having look at the input and find the value,
+if we set the forms up correctly then we will know what the current value is by looking at the state 
+
+
+our form will stay in sync with react 
+
+with vanilla dom manipulation we would typically wait until a form has been submitted 
+
+we are going to be using controlled components so that we know every value in an input or in a form 
+
+our component will be able to look in the state to find out exactly what is in there 
+
+in HTML form elements such as input textarea and select maintain their own state 
+
+in React mutable state is kept in the state 
+
+we male the React state to be the single source of truth 
+
+React controls:
+-what is shown 
+-what happens when the user types 
+
+react is going to be putting the data in there 
+
+it is a different approach than what we know to handle this 
+
+
+_______________________________________________________
+First Controlled Input
+_______________________________________________________
+our goal is to control what is showing and what happens when a user types 
+
+const UserForm = () => {
+    const [username, setUsername] = useState("ChickenLady")
+    return (
+        <form>
+            <input type='text' placeholder="username" value={username} />
+            <button>Add me to the List!</button>
+        </form>
+    )
+}
+
+written like this we are currently unable to change it because react is keeping it to be chicken lady 
+
+what is happening is that we need something called onChange handler 
+
+thats the second piece
+"what happens when the user types"
+
+we are going to call some function that we put in as onChange
+
+and we have this 
+
+    const handleChange = (event) => {
+        console.log(event.target.value)
+        // setUsername()
+    }
+
+we can see that we are just changing the last character but if we make use of the setState property then we can change it 
+
+import React, { useState } from 'react';
+
+const UserForm = () => {
+    const [username, setUsername] = useState("ChickenLady")
+    const handleChange = (event) => {
+        // console.log(event.target.value)
+        setUsername(event.target.value)
+    }
+    return (
+        <form>
+            <input type='text' placeholder="username" value={username} onChange={handleChange} />
+            <button>Add me to the List!</button>
+        </form>
+    )
+}
+export default UserForm;
+
+so now we have a controlled input that is going to update a state everytime a change happens 
+
+so now if a user types they are able to change the value 
+
+and that is a pattern that we will be using, 
+
+a value changes and the state is updated 
+_______________________________________________________
+Submitting forms
+_______________________________________________________
+now that we have our controlled input in place if we need to view the data we just check our state
+
+if we want to handle submit we can add in a function to do that 
+
+this is the beauty of doing controlled components because we can just look in the state to know what it is 
+
+we can add the handle submit but the default behavior is still to refresh the page 
+
+so if we have a button we know that it will submit 
+
+so we just need the event object and we can prevent the default page behavior and we can preserve the state. 
+
+we could also add an onSubmit instead of onClick
+
+pretty much the same thing but we put the onSubmit on the form itself not the button 
+
+and we can update the setUsername after we submit to just a blank field
+
+typically what we would do is pass this data down and use a function to create a user or something 
+
+
+
+_______________________________________________________
+htmlFor
+_______________________________________________________
+
+Thinking about labels 
+
+labels in react 
+
+we need to use labels to make our forms readable and accessible by all users 
+
+a label makes it easier for a screen readers and a user to make it easier to read 
+
+so we can add a label 
+
+and then we give that a for property that corresponds to an input field 
+
+and if we click on that label it goes to our field 
+
+the word for is reserved so we use htmlFor for our labels 
+
+
+_______________________________________________________
+Multiple Inputs
+_______________________________________________________
+Forms that have more than 1 input 
+
+lets throw in another input 
+
+what we have is pretty long and we have state handlers for each field and we only have 2 
+
+all of these things
+
+ES2015 Review 
+
+introduced a few object enhancements 
+we can create dynamic literals 
+
+Computed property names 
+
+var isntructorData = {};
+var isntructorData = "elie";
+isntructorData[isntructorData] = "Elie Schoppik
+
+ES2015
+let instructorCode = "elie"
+let instructorData = {
+    [instructorCode]: "ElieSchoppik"
+}
+
+so instead of making a seperate onChange for each input we can make a generic one 
+
+so first to have this work we need to combine our state 
+
+and for each state that we want to keep track of we will have a key in the object for formData 
+
+so we are no longer going to be putting in username but instead formData.username 
+
+now about the onChange property 
+
+we want to add in a "name" property to our inputs 
+the name property is something we have access to in our event.target 
+
+so we are going to use computed properties and set the name as a key and the value as a value 
+
+so now we have a handle change function that works with a number of input fields 
+
+and if we check the state we can see that everything is working as we intend it to
+
+if we want to reset all of the fields to have a clear field then we can make a new variable called initialState with the object that we want to reset
+
+name needs to match the property that we find in the state 
+
+
+_______________________________________________________
+Forms Pass Data up
+_______________________________________________________
+
+_______________________________________________________
+Refining Forms
+_______________________________________________________
+
+_______________________________________________________
+Testing Forms
+_______________________________________________________
+
+_______________________________________________________
+Uncontrolled Components
+_______________________________________________________
+
+_______________________________________________________
+Validations
+_______________________________________________________
+
+
