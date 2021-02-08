@@ -209,21 +209,509 @@ name needs to match the property that we find in the state
 _______________________________________________________
 Forms Pass Data up
 _______________________________________________________
+lets make a shopping list component to see how a form creates a new piece of information 
+
+a new todo, new product, new item 
+
+for now we can just create a list with some lis 
+
+we can have a 
+product : peanutbutter
+price : 2.99 
+
+
+import React from 'react';
+
+const Item = ({ id, name, qty }) => {
+    return (
+        <ul>
+            <li>Product Name: {name}</li>
+            <li>Quantity: {qty}</li>
+
+        </ul>
+    )
+}
+
+export default Item;
+
+we created an Item component that we want on our shopping list and we also have a ShoppingList 
+
+now we want to add in a form component into our react 
+
+and forms have their own state so how do we confugure it?
+
+in the case of a form , the form has its own state, they have their own so they can control the input 
+
+so we have the form and we are going to use the form state to update the shopping list 
+
+Form manages its own state
+The parent component will pass down a method 
+the form will call that on submission 
+we are passing data upwards by calling a method we pass down as a prop 
+
+first lets define our form initial state 
+
+it will be a single object 
+
+and we want name and qty 
+
+so now we have a single input
+
+import React, { useState } from 'react';
+
+const NewItemForm = () => {
+    const INITIAL_STATE = {
+        name: '',
+        qty: '',
+    }
+    const [formData, setFormData] = useState(INITIAL_STATE)
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(formData => ({
+            ...formData,
+            [name]: value
+        }))
+    }
+    return (
+        <form>
+            <label htmlFor='name'>Product</label>
+            <input
+                id="name"
+                type='text'
+                name='name'
+                placeholder='Item Name'
+                value={formData.name}
+                onChange={handleChange} />
+
+            <label htmlFor='qty'>Quantity</label>
+            <input
+                type='text'
+                name='qty'
+                placeholder='Quantity'
+                value={formData.qty}
+                onChange={handleChange}
+            />
+            <p>{formData.name}</p>
+            <p>{formData.qty}</p>
+        </form>
+
+    )
+}
+
+
+this form has two inputs now 
+
+but we want to update the parent form 
+
+so that we add in the new product in the items array in shopping list 
+
+so lets add an onSubmit
+
+the form state is local to our form state component 
+but we can add a function called add item into our parent component 
+
+    const addItem = (name, qty) => {
+        // adding this in to a new array, not mutating the original array
+        // add in the new product and new item 
+        setItems(items => [...items, { name, qty }])
+    }
+
+and then we take that function and we pass it down to the form 
+
+<NewItemForm addItem={addItem} />
+
+ so now we jump over to our form component and we can destructure the prop method we just passed down for on item 
+
+so no we have our function working and there will be some changes to the components but the flow is basically down 
+
+
+we are going to refactor in the next video so here is the current state of our NewItemForm component 
+
+import React, { useState } from 'react';
+
+const NewItemForm = ({ addItem }) => {
+    const INITIAL_STATE = {
+        name: '',
+        qty: '',
+    }
+    const [formData, setFormData] = useState(INITIAL_STATE)
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(formData => ({
+            ...formData,
+            [name]: value
+        }))
+    }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        addItem(formData.name, formData.qty);
+        setFormData(INITIAL_STATE)
+
+    }
+    return (
+        <form onSubmit={handleSubmit}>
+            <label htmlFor='name'>Product</label>
+            <input
+                id="name"
+                type='text'
+                name='name'
+                placeholder='Item Name'
+                value={formData.name}
+                onChange={handleChange} />
+
+            <label htmlFor='qty'>Quantity</label>
+            <input
+                type='text'
+                name='qty'
+                placeholder='Quantity'
+                value={formData.qty}
+                onChange={handleChange}
+            />
+            <button>Add Item</button>
+        </form>
+
+    )
+}
+
+export default NewItemForm;
+
+
+
 
 _______________________________________________________
 Refining Forms
 _______________________________________________________
+we need to add in a key \
+
+we currently dont have a unique key prop 
+
+if we dont have something that makes sense , like usually we would have an id from a database coming from an api 
+
+we can use uuid library 
+
+all that we have to do to use it is import it from uuid 
+
+import uuid from 'uuid/v4';
+
+it is a function we can execute
+
+had to find this in the docs to have it import correcctly 
+
+
+import { v4 as uuid } from 'uuid';
+
+and now in the state we can see that the uuid is creating several stringed id so that we can have unique ids 
+
+the way we are passing the data up is not currently that cumbersome 
+
+but with several form data fields would be more cumbersome 
+
+if we do need all of the information from the form then we are going to pass it all up 
+
+
+addItem(formData.name, formData.qty);
+
+this line turns to this 
+
+addItem({...formData});
+
+but now we have to change how add item works to extract the values from the object we are going to be passing up 
+
+const addItem = (newItem) => {
+        // adding this in to a new array, not mutating the original array
+        // add in the new product and new item 
+
+        setItems(items => [...items, { ...newItem, id: uuid() }])
+    }
+
+so we have our new Item , we create a new object with the newItem and we add in an idea , where the new object contains the name and qty of the item we are adding in 
+
+so now we can add in 10 more fields into our form and we dont have to change our handle submit 
+
+we have been doing text inputs but we can do a range input 
+
+and we can just change that 
+
+<label htmlFor='qty'>Quantity</label>
+            <input
+                type='range' min='1' max='10'
+                name='qty'
+                placeholder='Quantity'
+                value={formData.qty}
+                onChange={handleChange}
+            />
+
+            makes it still work and be able to add items 
+
+we should display what we are selecting too 
+and we can display that piece of state in the label 
+
+and we can do this with all of the commone input elements that are frequently used in forms 
+
+gives a nice little summary at the end of the video about the way it all works together 
+
 
 _______________________________________________________
 Testing Forms
 _______________________________________________________
+testing components that contain forms 
+
+we have our shopping list components 
+
+for example if we add in a new item that is expecting chocolate milk to not show up 
+
+to test typing in form inputs we can use fireEvent.change
+we will need to mock event.target.value 
+
+we just tested for product and the code is below 
+
+import React from 'react';
+import { render, fireEvent } from "@testing-library/react";
+import ShoppingList from "./ShoppingList"
+import Item from './Item';
+
+it("renders without crashing", function () {
+    render(<ShoppingList />);
+});
+
+it("matches snapshot", function () {
+    const { asFragment } = render(<ShoppingList />);
+    expect(asFragment()).toMatchSnapshot();
+})
+
+it("should add a new item", function () {
+    // extracting our query selectors for the testing
+    const { queryByText, getByLabelText } = render(<ShoppingList />);
+    // we are checking only product so lets use the get LabelText
+    const input = getByLabelText("Product");
+    // grabbing our button by the text
+    const btn = queryByText("Add Item");
+    // we are making sure that the product we want to check is not in the form
+    expect(queryByText("Product Name: Chocolate Milk")).not.toBeInTheDocument();
+    // this is basically us filling out the form , we are selecting the field and adding in the value
+    fireEvent.change(input, { target: { value: "Chocolate Milk" } });
+    // now we submit 
+    fireEvent.click(btn);
+    expect(queryByText("Product Name: Chocolate Milk")).toBeInTheDocument();
+    // and we can follow the same steps for quantity
+})
+import React from 'react';
+import { render, fireEvent } from "@testing-library/react";
+import ShoppingList from "./ShoppingList"
+import Item from './Item';
+
+it("renders without crashing", function () {
+    render(<ShoppingList />);
+});
+
+it("matches snapshot", function () {
+    const { asFragment } = render(<ShoppingList />);
+    expect(asFragment()).toMatchSnapshot();
+})
+
+it("should add a new item", function () {
+    // extracting our query selectors for the testing
+    const { queryByText, getByLabelText } = render(<ShoppingList />);
+    // we are checking only product so lets use the get LabelText
+    const input = getByLabelText("Product");
+    // grabbing our button by the text
+    const btn = queryByText("Add Item");
+    // we are making sure that the product we want to check is not in the form
+    expect(queryByText("Product Name: Chocolate Milk")).not.toBeInTheDocument();
+    // this is basically us filling out the form , we are selecting the field and adding in the value
+    fireEvent.change(input, { target: { value: "Chocolate Milk" } });
+    // now we submit 
+    fireEvent.click(btn);
+    expect(queryByText("Product Name: Chocolate Milk")).toBeInTheDocument();
+    // and we can follow the same steps for quantity
+})
+
+
+
 
 _______________________________________________________
 Uncontrolled Components
 _______________________________________________________
+all of the forms we have written so far is controlled components/forms 
+
+react is render the forms with state 
+
+we change the input by changing the state 
+react is in charge of each input 
+
+this works well because our component is always in sync 
+
+there are times we might need to write uncontrolled component 
+
+instead we would have something more like a jquery to do app 
+
+we can implement it in react and have react not know what is in the form 
+
+most of the time this is not a reacty practice 
+
+certain inputs and some external libraries cover it 
+
+form data would be handled by the DOM itself 
+
+there is no state at all but there is a form and the form is just a regular input and on the on submit it is grabbing the valye 
+
+so react is blind until we get the phone 
+react wont see it until it is submitted 
+
+one of the cases is if we are working or integrating with some non react code 
+
+rewriting forms can be tricky 
+
+one situation where we dont have a choice at all is with a file input 
+
+there is no way to use code to set the value of a file input because they come from a user's machine 
+
+if we think of the other inputs , react is setting the value everytime the state is updated 
+
+that will not work with a file input 
+that cannot work with a controlled component but for the most part we can get by with controlled components 
+
 
 _______________________________________________________
 Validations
 _______________________________________________________
 
+Form validation with react 
+
+this can get complicated with react if we are doing it all on our own 
+
+we want to provide some feedback for the user 
+
+rather than submit we want to make sure the user gets some immediate feedback before submitting a form 
+
+but we also want to check stuff from the server side 
+
+we want both forms of validation 
+client side validation is a nice experience 
+
+if we want to just check that an email validation is happening 
+
+that it fits within our rules 
+
+something like a password meter 
+
+with a controlled input we can do that 
+
+we are going to just add in a span to say that the email cannot be blank 
+
+so we are going to need to make a piece of state 
+
+const [isInvalid, setIsInvalid] = useState(true)
+defaults to true so that we are assuming the email field is empty and therefore is Invalid
+
+so we just need to figure out when we want to flip that value 
+
+if (value === '') {
+            setIsInvalid(true);
+
+        } else {
+            setIsInvalid(false)
+        }
+
+so here is our janky code 
+
+but its working 
+
+then if we want to prevent a submission of an invalid field then we need to check if the field is not invalid 
+
+if (!isInvalid) {
+            alert(`Added you to mailing list ${email}`)
+            setFormData(initialState)
+        }
+
+and so then if we accept it then we can submit 
+
+now we have another problem that the user would see
+
+everything is invalid in the field 
+
+but we want to wait until a user actually starts typing 
+
+
+so we make a piece of state to check if it has been touched 
+
+setIsTouched(true)
+
+then we set that in the event changer which activates once a user touches the field 
+
+then we update and only render our span if a user has touched it and the field is blank 
+
+{isInvalid && isTouched && <span style={{ color: 'red' }}>Email cannot be blank!</span>}
+
+and this is just one field 
+
+what if we want to check product quanity all of these field 
+
+validating for multiple validations is kind of a nightmare (fromscratch)
+
+there are many tools 
+
+we can use Formik 
+
+Formik is a tool that helps you build react forms 
+its a package we need to isntall 
+
+download it 
+
+we get a function called useFormik() 
+
+check out the tutorial 
+
+we get errors and validation 
+
+we just tell it the initial values and it sets everything else up 
+
+makes a huge difference 
+
+there are tons of tools 
+
+formik gives you a lot of controls over your forms 
+
+material ui is react components that are pretty nice , it has a bunch of components built in 
+
+there is a formik material ui 
+
+it combines material ui and formik 
+
+there is also one for bootstrap called react-strap 
+
+this library does not do the validation for you it just gives you the input being valid or invalid 
+
+writing validation on our own can be painful but you are not a bad developer for not using tool because trying to define your own is time consuming and difficult to maintain 
+
+
+_______________________________________________________
+Mentor notes
+_______________________________________________________
+
+
+you will use the first time a component is laoded 
+
+useEffect 
+
+your component probably starts with external data from an api 
+
+when the component loaded do something 
+
+most likely fetch 
+
+useEffect can load the fetch  
+
+fetch library 
+
+react redux - can use it along with state 
+been around longer than hooks 
+
+trying to have one place where your state lives 
+
+would get its state from the same redux
+
+redux solves that issue of having to pass around code 
+
+planning comes in handy but as projects get more complex 
 
